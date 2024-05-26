@@ -1,4 +1,4 @@
-#  Tweaking & Managing Elastic Beanstalk - Uncontainerized Applications - SingleInstance / LoadBalanced - deployed with CICD, Built with IaC - Terrafrom
+#  Tweaking & Managing Elastic Beanstalk - Uncontainerized Applications - SingleInstance / LoadBalanced - Deployed with CICD, Built with IaC - Terrafrom
 
 ## Decription
 Elastic Beanstalk is one of the popular PaaS AWS services which delivers an easy dashboard to setup an infrastructure for a variety of softewre [runtimes](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/concepts.platforms.html).
