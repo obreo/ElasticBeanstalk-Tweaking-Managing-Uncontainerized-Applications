@@ -42,6 +42,7 @@ Platform Hooks are also used to configure the deployment lifecycle - such as tra
 These are two files that are placed in the source code, both of these files are used to manage *compiling/building* the applciation - in case of Buildfile - and starting/running the application on runtime - in case of Profile. Each of these files can be defined by adding them in the application directory on the instance and set the commands using key:value method.
 
 Deciding whether and when to use these features depends on realising the required phase to run your script within the order of running the extenions:
+
 ![Order of running extensions](https://docs.aws.amazon.com/images/elasticbeanstalk/latest/dg/images/platforms-linux-extend-order.png)
 
 For more details:
