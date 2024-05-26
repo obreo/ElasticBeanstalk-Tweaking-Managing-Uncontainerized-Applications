@@ -1,7 +1,7 @@
 #  Tweaking & Managing Elastic Beanstalk - Uncontainerized Applications - SingleInstance / LoadBalanced - Deployed with CICD, Built with IaC - Terrafrom
 
 ## Decription
-Elastic Beanstalk is one of the popular PaaS AWS services which delivers an easy dashboard to setup an infrastructure for a variety of softewre [runtimes](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/concepts.platforms.html).
+Elastic Beanstalk is one of the popular PaaS AWS services which deliver an easy dashboard to setup an infrastructure for a variety of software [runtimes](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/concepts.platforms.html).
 
 This article explains how to tweak and configure uncontainerized applications like NodeJS in PaaS services like AWS Elastic Beanstalk, by deploying single instance type (not load balanced) and highly available autoscalable instance type (load balanced) that supports rolling back, and integrated it with continues integration and continues delivery (CI/CD) using infrastracture as code (IaC) with Terraform.
 
