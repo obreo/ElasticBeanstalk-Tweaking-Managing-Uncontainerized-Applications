@@ -1,0 +1,21 @@
+This script will build nodejs app, and push it as an artifact considering all files in a single folder. This is used for S3 static sites.
+
+version: 0.2
+phases:
+  install:
+      runtime-versions:
+              nodejs: 18
+  pre_build:
+      commands:
+        - echo Installing source NPM dependencies... 
+        - npm install --force
+  build:
+      commands:
+        - echo Build started 
+        - npm run build
+artifacts:
+  name: artifact
+  files:
+    - '**/*'
+  base-directory: "dist/healthcare"
+  discard-path: yes
