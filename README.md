@@ -5,7 +5,7 @@ Elastic Beanstalk is one of the popular PaaS AWS services which deliver an easy 
 
 This article explains how to tweak and configure uncontainerized applications like NodeJS in PaaS services like AWS Elastic Beanstalk, by deploying single instance type (not load balanced) and highly available autoscalable instance type (load balanced) that supports rolling back, and integrated it with continues integration and continues delivery (CI/CD) using infrastracture as code (IaC) with Terraform.
 
-This infrastructure implements a secure and best practice solutions to build and deploy NodeJS application that uses AWS SSM Parameter store for secrets.
+This infrastructure implements a secure and best practice solutions to build and deploy NodeJS - and its variants - application that uses AWS SSM Parameter store for secrets.
 
 ## Architecture
 ![Architecture](/architecture.png)
