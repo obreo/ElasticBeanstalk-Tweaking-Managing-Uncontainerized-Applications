@@ -235,6 +235,7 @@ For Route53, an alias can be created to route the custom DNS to the cloudfront e
 5. Use ebextensions to run npm install before depoyment in elastic beanstalk to solve error `sh: not found`.
 6. Save configuration when setting the elastic beanstalk environment to use it later as endpoint restore when required.
 7. Enabling Stickiness in the load balancer requires an SSL certitificate particularily for the ALB, this can be created using ACM.
+8. We can trace the unknown errors from the log files in /var/log directory as well as checking the **messages** log file.
 
 # Notes for Python
 
@@ -244,3 +245,18 @@ To run Streamlit server over elastic beanstalk:
 Port 8000 is the default port that runs on elastic beanstalk for Python
 
 2. Modify your *elastic beanstalk environment configuration* from the **AWS Dashboard** by navigating to Configuration > Configure updates, monitoring, and logging > Platfrom Software: modify **WSGIPath** to *app.py* or *application.py* - the name of your python .py file.
+
+# Notes for Nginx
+Nginx default configuration can be changed by creating a **.platfrom/nginx/** or **.platfrom/nginx/conf.d** direcotry then adding either nginx.conf file which will override the default one in /etc/nginx/nginx.conf in the instance. Or adding conf.d/FILE_NAME.conf with a set of nginx configurations which will override the default ones.
+
+As we can also add a new reverse proxy configuration at the conf.d direcotry.
+
+example:
+to modify the hash size and client upload size, we can modify two arguments in nginx.
+
+1. Create **FILE_NAME.conf** file in **.platform/nginx/conf.d** and add the following:
+```
+client_max_body_size 250M;
+types_hash_max_size 1024;
+```
+This will override the related configuration in the elastic beanstalk environment.
