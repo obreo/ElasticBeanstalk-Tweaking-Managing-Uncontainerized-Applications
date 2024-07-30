@@ -235,3 +235,12 @@ For Route53, an alias can be created to route the custom DNS to the cloudfront e
 5. Use ebextensions to run npm install before depoyment in elastic beanstalk to solve error `sh: not found`.
 6. Save configuration when setting the elastic beanstalk environment to use it later as endpoint restore when required.
 7. Enabling Stickiness in the load balancer requires an SSL certitificate particularily for the ALB, this can be created using ACM.
+
+# Notes for Python
+
+To run Streamlit server over elastic beanstalk:
+1. Create a **Procfile** in the root directory of the source code and make it like this:
+`web: echo "<EMAIL> | "streamlit run application.py --server.port 8000`
+Port 8000 is the default port that runs on elastic beanstalk for Python
+
+2. Modify your *elastic beanstalk environment configuration* from the **AWS Dashboard** by navigating to Configuration > Configure updates, monitoring, and logging > Platfrom Software: modify **WSGIPath** to *app.py* or *application.py* - the name of your python .py file.
