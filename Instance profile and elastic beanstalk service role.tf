@@ -1,13 +1,13 @@
 # Instance profile
 # Use an instance profile to pass an IAM role to an EC2 instance. 
 resource "aws_iam_instance_profile" "instance_profile" {
-  name = "elaticbeanstalk_instance_profile"
+  name = "elaticbeanstalk_instance_profile_${var.name}"
   role = aws_iam_role.assume_role.name
 }
 
 # Role to be passed
 resource "aws_iam_role" "assume_role" {
-  name               = "elasticbeanstalk_assume_role"
+  name               = "elasticbeanstalk_assume_role_${var.name}"
   path               = "/"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
@@ -59,7 +59,7 @@ resource "aws_iam_role_policy_attachment" "elastic_beanstalk_policy_5" {
 ##########################################################################
 # Service Role to pass to elastic beanstalk
 resource "aws_iam_role" "elasticbeanstalk_service_role" {
-  name               = "elasticbeanstalk-service-role"
+  name               = "elasticbeanstalk-service-role-${var.name}"
   path               = "/"
   assume_role_policy = data.aws_iam_policy_document.elasticbeanstalk-service-role.json
 }
@@ -119,7 +119,6 @@ resource "aws_iam_policy" "ebstalk-additionals" {
         "Sid" : "AllowingaccesstoECRrepositories",
         "Effect" : "Allow",
         "Action" : [
-          "ecr:DescribeRepositoryCreationTemplate",
           "ecr:GetRegistryPolicy",
           "ecr:DescribeImageScanFindings",
           "ecr:GetLifecyclePolicyPreview",
@@ -138,6 +137,9 @@ resource "aws_iam_policy" "ebstalk-additionals" {
           "ecr:GetLifecyclePolicy",
           "ecr:DescribeImages",
           "ecr:DescribeRepositories",
+          "ec2:DescribeTags",
+          "elasticbeanstalk:DescribeEnvironments",
+          "cloudfront:CreateInvalidation",
           "ecr:ListImages"
         ],
         "Resource" : "*"
@@ -194,8 +196,8 @@ resource "aws_iam_policy" "ebstalk-additionals" {
           "s3:ListMultipartUploadParts"
         ],
         "Resource" : [
-          "arn:aws:s3:::${var.name}.bucket",
-          "arn:aws:s3:::${var.name}.bucket/*"
+          "arn:aws:s3:::${var.name}-bucket",
+          "arn:aws:s3:::${var.name}-bucket/*"
         ]
       },
       {
@@ -211,6 +213,7 @@ resource "aws_iam_policy" "ebstalk-additionals" {
 
 # Keypair
 resource "aws_key_pair" "elastic_beanstalk_keypair" {
+  count = length(var.create_keypair) > 0 ? 1 : 0
   key_name   = "${var.name}-sshkey"
   public_key = var.ssh-key
 

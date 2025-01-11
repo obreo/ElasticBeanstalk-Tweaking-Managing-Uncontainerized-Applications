@@ -37,7 +37,7 @@ resource "aws_iam_role_policy_attachment" "codebuild_policy_2" {
 ####################################
 
 resource "aws_iam_policy" "codebuild-elasticbeanstalk-role" {
-  name        = "codebuild-elasticbeanstalk-role-terraform"
+  name        = "codebuild-elasticbeanstalk-role-${var.name}"
   path        = "/"
   description = "Additional policies required for elstic beanstalk with codebuild cicd"
 
@@ -83,6 +83,7 @@ resource "aws_iam_policy" "codebuild-elasticbeanstalk-role" {
         Action = [
           "elasticbeanstalk:*",
           "s3:ListAllMyBuckets",
+          "cloudfront:CreateInvalidation",
           "cloudformation:*"
         ],
         Resource = "*"
@@ -105,6 +106,8 @@ resource "aws_iam_policy" "codebuild-elasticbeanstalk-role" {
         Resource = [
           "${aws_s3_bucket.bucket.arn}",
           "${aws_s3_bucket.bucket.arn}/*",
+          "${aws_s3_bucket.static[0].arn}",
+          "${aws_s3_bucket.static[0].arn}/*"
         ]
       },
       {

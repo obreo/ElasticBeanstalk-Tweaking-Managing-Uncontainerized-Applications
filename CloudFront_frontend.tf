@@ -1,8 +1,12 @@
-resource "aws_cloudfront_distribution" "distribution" {
-  count = var.enable_cloudfront ? 1 : 0
+resource "aws_cloudfront_distribution" "static" {
+  count               = var.enable_frontend ? 1 : 0
+  enabled             = true
+  is_ipv6_enabled     = true
+  default_root_object = "index.html"
   origin {
-    domain_name = "${aws_elastic_beanstalk_environment.environment.cname_prefix}.${var.region}.elasticbeanstalk.com"
-    origin_id   = var.name
+    domain_name              = aws_s3_bucket.static[count.index].bucket_regional_domain_name #"${aws_s3_bucket.static.bucket_regional_domain_name}"
+    origin_access_control_id = aws_cloudfront_origin_access_control.s3_oac[count.index].id
+    origin_id                = aws_s3_bucket.static[count.index].bucket_regional_domain_name
 
 
     custom_origin_config {
@@ -18,20 +22,18 @@ resource "aws_cloudfront_distribution" "distribution" {
     }
   }
 
-  enabled         = true
-  is_ipv6_enabled = true
-
   default_cache_behavior {
-    allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cached_methods   = ["GET", "HEAD", "OPTIONS"]
-    target_origin_id = var.name
+    allowed_methods  = ["GET", "HEAD"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = aws_s3_bucket.static[count.index].bucket_regional_domain_name
     # Doc: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html
-    cache_policy_id = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
+    cache_policy_id = "658327ea-f89d-4fab-a63d-7e88639e58f6"
     # Doc: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html
-    origin_request_policy_id = "b689b0a8-53d0-40ab-baf2-68738e2966ac"
+    origin_request_policy_id = "88a5eaf4-2fd4-4709-b370-b4c650ea3fcf"
     # Doc: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-response-headers-policies.html#managed-response-headers-policies-cors
     response_headers_policy_id = "60669652-455b-4ae9-85a4-c4c02393f86c"
-    viewer_protocol_policy     = "https-only"
+    viewer_protocol_policy     = "redirect-to-https"
+    compress                   = true
   }
 
   restrictions {

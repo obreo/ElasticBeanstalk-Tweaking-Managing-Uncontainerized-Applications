@@ -1,1 +1,0 @@
-web: export $(cat /opt/elasticbeanstalk/deployment/env-custom | xargs) && npm start

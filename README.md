@@ -226,16 +226,49 @@ Once approved, routing the domain to the cloudfront will be possible using CNAME
 #### Using Route53
 For Route53, an alias can be created to route the custom DNS to the cloudfront endpoint that uses the elastic beanstalk environment.
 
+## SSL Encryption
+
+There are three methods to apply a certificate to an Elastic Beanstalk environment:
+1. Using a ACM certificate with Load Balancer.
+2. Using CloudFront as a proxy server with SSL certificate.
+3. Using SSL on the instance level.
+
+The third method can be implemented using a combination of `.ebextensions` and `.platform hooks` to install Certbot and automate its job on every instance deployed. 
+
+The implementation of this method's logic is differs for each Deployment strategy, mainly between the Immutable strategy, and In-Place strategy. This is due to the event timing for each deployment, as Certbot needs to be executed once it is routed to the Elastic beanstalk endpoint, and when Nginx is ready to listen to traffic. 
+
+Where the first is ready for the instances deployed using the In-Place strategy, and the later would be ready after the health checks are met. So we can assume the best stage to run certbot is in the `Postdeploy` using platfrom hooks. 
+
+However, for the Immutable deployment strategy, the instance being deployed is being prepared in a temporarily created autoscaling group, while the Elastic beanstalk endpoint is still connected to the old instance, and this occurs even during the Postdeploy method. Hence certbot will fail highlighting challenges failure.
+
+To solve this, we can schuedle the certbot job to run minutes after the postdeploy method is initiated, which gives the instance time to get attached to the original autoscaling group and get DNS routed to the new instance instead of the old once.
+
+## In-Place
+
+Create `.ebextensions` folder that will run a `script.conf` file, which will have a `container_command` that installs certbot. Create `.platform/hooks/postdeploy/script.sh` which will contain the certbot's command to get the certificate to the Elastic beanstalk's endpoint.
+
+## Immutable
+
+Similar to the In-Place method, but change `.platform/hooks/postdeploy/script.sh` code to schedule certbot execution about 10 minutes later. This can be done using `at` linux command.
+
+## Using Multi-Stage Environments
+
+If multi staged environments is used, e.g. dev - staging - prod, we can enhance the logic little further:
+1. Create `.platform/hooks/postdeploy/scripts/script.sh` and `.platform/hooks/postdeploy/script_runner.sh`
+2. The `script_runner.sh` will schedule running the `/scripts/script.sh` file, which will contain the certbot job.
+3. The certbot script will grab the instance metadata, particularly *elastic beanstalk envrionment id* and environment DNS endpoint.
+4. Using conditional if-statements, compare the output to the elastic beanstalk endpoints development and production endpoints, and the certbot will generate a new certificate for the right instance with the related DNS.
+
 ### Notes & Troubleshooting
 1. The application's port can be modified using a predefined AWS environment variable `PORT`.
 2. For t2/3.micro instance, running npm run build causes memory full, so create a swap script and run it by .ebextensions
-2. If npm requires permission while building, use .npmrc file with `unsafe-perm=true`.
-3. Always trace the problems using the logs in /var/log directory.
-4. For Immutable deployment logs, check elastic beanstalk's bucket's logs, they persist for one hour after each event.
-5. Use ebextensions to run npm install before depoyment in elastic beanstalk to solve error `sh: not found`.
-6. Save configuration when setting the elastic beanstalk environment to use it later as endpoint restore when required.
-7. Enabling Stickiness in the load balancer requires an SSL certitificate particularily for the ALB, this can be created using ACM.
-8. We can trace the unknown errors from the log files in /var/log directory as well as checking the **messages** log file.
+3. If npm requires permission while building, use .npmrc file with `unsafe-perm=true`.
+4. Always trace the problems using the logs in /var/log directory.
+5. For Immutable deployment logs, check elastic beanstalk's bucket's logs, they persist for one hour after each event.
+6. Use ebextensions to run npm install before depoyment in elastic beanstalk to solve error `sh: not found`.
+7. Save configuration when setting the elastic beanstalk environment to use it later as endpoint restore when required.
+8. Enabling Stickiness in the load balancer requires an SSL certitificate particularily for the ALB, this can be created using ACM.
+9. We can trace the unknown errors from the log files in /var/log directory as well as checking the **messages** log file.
 
 # Notes for Python
 

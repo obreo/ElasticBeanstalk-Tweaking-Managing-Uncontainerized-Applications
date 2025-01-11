@@ -9,8 +9,8 @@ terraform {
 
 # Configure the AWS Provider
 provider "aws" {
-  region                   = ""
-  shared_config_files      = ["~/.aws/credentials"]
+  region                   = "us-east-1"
+  shared_config_files      = ["~/.aws/config"]
   shared_credentials_files = ["~/.aws/credentials"]
-  profile                  = ""
+  profile                  = "default"
 }

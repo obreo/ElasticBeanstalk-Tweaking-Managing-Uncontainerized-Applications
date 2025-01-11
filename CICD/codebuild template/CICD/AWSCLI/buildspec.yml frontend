@@ -17,5 +17,34 @@ artifacts:
   name: artifact
   files:
     - '**/*'
-  base-directory: "dist/healthcare"
+  base-directory: "dist/"
   discard-path: yes
+
+
+  ___________________________________________________________
+  version: 0.2
+phases:
+  install:
+    runtime-versions:
+            nodejs: 20
+  pre_build:
+    commands:
+      - echo 'calling parameters'
+      - ${var.parameter_path != "" ? "aws ssm get-parameters-by-path --path ${var.parameter_path} --with-decryption --query 'Parameters[*].[Name,Value]' --output text | while read -r name value; do exported_variables='$${name##*/}=$value'; echo '$exported_variables' >> .env; done" : "echo no env stated."}
+      - echo Installing source NPM dependencies... 
+      - npm install
+      - npm install -g @angular/cli
+      - echo Dependecies installed.
+
+  build:
+    commands:
+      - echo Build started 
+      - ng build --configuration=production
+
+  post_build:
+    commands:
+      - echo Uploading files to S3
+      - aws s3 sync dist/ s3://${var.name}/ --delete
+      - echo Files uplaoded to S3
+      - echo Flushing Cloudfront cache
+      - aws cloudfront create-invalidation --distribution-id ${aws_cloudfront_distribution.static[count.index].id} --paths '/*'
